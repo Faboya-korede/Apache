@@ -52,3 +52,21 @@ resource "aws_instance" "my_instance" {
     Name = "my-instance"
   }
 }
+
+
+
+resource "null_resource" "save_ip" {
+  provisioner "local-exec" {
+    command = "echo '[server3]' >> /home/vagrant/terraform2/host-inventory && echo '${aws_instance.web-3.public_ip}' >> /home/vagrant/terraform2/host-inventory"
+  }
+
+  resource "null_resource" "ansible" {
+provisioner "local-exec" {
+  command = "ANSIBLE_HOST_KEY_CHECKING=False  ansible-playbook -i /home/vagrant/terraform2/host-inventory  /home/vagrant/terraform2/project.yml"
+ }
+depends_on = [
+  aws_instance.web
+  ,aws_instance.web-2
+  ,aws_instance.web-3
+]
+}
