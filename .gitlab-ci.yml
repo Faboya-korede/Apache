@@ -9,21 +9,14 @@ before_script:
     - terraform --version
     - terraform init 
     - apk update
-    - apk add unzip
-    - apk add curl python3 py3-pip
-    - apk add aws-cli
-    - curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-    - mv /tmp/eksctl /usr/local/bin
-    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    - chmod +x ./kubectl
-    - mv ./kubectl /usr/local/bin/kubectl
-
+    - apt-get install -y ansible
 
 stages:
     - configure
     - validate
     - plan 
     - apply
+    - ansible 
     - destroy
 
 
@@ -61,6 +54,10 @@ apply:
         - terraform apply -auto-approve
     only:
         - master 
+
+ansible:
+    script:
+        - ANSIBLE_HOST_KEY_CHECKING=False  ansible-playbook -i host-inventory  project.yml
 
 destroy:
     stage: destroy 
